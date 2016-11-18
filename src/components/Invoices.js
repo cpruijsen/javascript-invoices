@@ -10,6 +10,8 @@ export default class Invoices extends Component {
       showCreateInvoice: false
     };
     this.showCreateInvoice = this.showCreateInvoice.bind(this);
+    this.getCustomers = this.getCustomers.bind(this);
+    this.getProducts = this.getProducts.bind(this);
   }
   componentDidMount() {
     let that = this;
@@ -61,7 +63,7 @@ export default class Invoices extends Component {
       				</tbody>
       			</table>
           <button onClick={() => that.showCreateInvoice()}>create new invoice</button>
-        </div> : <CreateInvoice returnToInvoices={this.showCreateInvoice}/>}
+        </div> : <CreateInvoice customers={this.getCustomers()} products={this.getProducts()} returnToInvoices={this.showCreateInvoice}/>}
       </div>
     );
   }
@@ -69,5 +71,56 @@ export default class Invoices extends Component {
     this.setState({
       showCreateInvoice: !this.state.showCreateInvoice
     });
+  }
+  getCustomers() {
+    fetch('http://localhost:8000/api/customers')
+      .then(res => res.json())
+      .then(customers => {
+        // I noticed the customer data had a lot of duplicates, so we'll de-dupe it here for deep equal on the three customer props.
+        let customerObj = {};
+        customers.forEach(customer => {
+          customerObj[`${customer.name}, ${customer.address}, ${customer.phone}`] = customer;
+        });
+        let customerSet = [];
+        for (let key in customerObj) {
+          if (customerObj.hasOwnProperty(key)) {
+            customerSet.push(customerObj[key]);
+          }
+        }
+        let formattedCustomers = customerSet.map(customer => {
+          return <tr key={`customer_${customer.id}`}>
+            <td>{customer.id}</td>
+            <td>{customer.name}</td>
+            <td>{customer.address}</td>
+            <td>{customer.phone}</td>
+          </tr>
+        });
+        return formattedCustomers;
+      }).catch(err => console.warn('err fetching customers', err));
+  }
+  getProducts() {
+    fetch('http://localhost:8000/api/products')
+      .then(res => res.json())
+      .then(products => {
+        // I noticed the product data had a lot of duplicates, so we'll de-dupe it here for deep equal on the two product props.
+        let productObj = {};
+        products.forEach(product => {
+          productObj[`${product.name}, ${product.price}`] = product;
+        });
+        let productSet = [];
+        for (let key in productObj) {
+          if (productObj.hasOwnProperty(key)) {
+            productSet.push(productObj[key]);
+          }
+        }
+        let formattedProducts = productSet.map(product => {
+          return <tr key={`product_${product.id}`}>
+            <td>{product.id}</td>
+            <td>{product.name}</td>
+            <td>{product.price}</td>
+          </tr>
+        });
+        return formattedProducts;
+      }).catch(err => console.warn('err fetching products', err));
   }
 }
