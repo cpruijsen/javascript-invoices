@@ -155,17 +155,16 @@ export default class CreateInvoice extends Component {
     console.log('new product quantity', addedQuantity);
 
     let addedProductQuantities = this.state.addedProductQuantities.slice();
-    for (let i = 0, len = addedProductQuantities.length; i < len; i++) {
-      if (addedProductQuantities[i]) {
-        if (addedProductQuantities[i]['id'] === addedQuantity.id) {
-            addedProductQuantities[i] = addedQuantity;
-            break;
-        } else if (i === len-1) {
-          addedProductQuantities.push(addedQuantity);
+    if (addedProductQuantities.length === 0) {
+      addedProductQuantities.push(addedQuantity);
+    } else {
+      addedProductQuantities.map(addedProduct => {
+        if (addedProduct.id === addedQuantity.id) {
+          return addedQuantity;
+        } else {
+          return addedProduct;
         }
-      } else {
-        addedProductQuantities.push(addedQuantity);
-      }
+      });
     }
     this.setState({addedProductQuantities: addedProductQuantities}, () => {
       // calculate the total, then update the invoice etc.
@@ -194,7 +193,7 @@ export default class CreateInvoice extends Component {
     this.state.addedProductQuantities.forEach(product => {
       productTotal += (product.price * product.quantity);
     });
-    let total = productTotal * (1 - this.state.discount);
+    let total = productTotal * (100 - this.state.discount);
     this.setState({total: total}, () => {
       let body = {
         customer_id: that.state.customer,
