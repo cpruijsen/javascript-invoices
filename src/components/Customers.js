@@ -18,10 +18,7 @@ export default class Customers extends Component {
       .then(res => res.json())
       .then(customers => {
         console.log('customers fetched', customers);
-        that.setState({customers: customers});
-
         // I noticed the customer data had a lot of duplicates, so we'll de-dupe it here for deep equal on the three customer props.
-
         let customerObj = {};
         customers.forEach(customer => {
           customerObj[`${customer.name}, ${customer.address}, ${customer.phone}`] = customer;
@@ -32,6 +29,7 @@ export default class Customers extends Component {
             customerSet.push(customerObj[key]);
           }
         }
+        that.setState({customers: customers});
         let formattedCustomers = customerSet.map(customer => {
           return <tr key={`customer_${customer.id}`}>
             <td>{customer.id}</td>

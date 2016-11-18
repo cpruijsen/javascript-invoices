@@ -18,8 +18,19 @@ export default class Products extends Component {
       .then(res => res.json())
       .then(products => {
         console.log('products fetched', products);
-        that.setState({products: products});
-        let formattedProducts = products.map(product => {
+        // I noticed the product data had a lot of duplicates, so we'll de-dupe it here for deep equal on the two product props.
+        let productObj = {};
+        products.forEach(product => {
+          productObj[`${product.name}, ${product.price}`] = product;
+        });
+        let productSet = [];
+        for (let key in productObj) {
+          if (productObj.hasOwnProperty(key)) {
+            productSet.push(productObj[key]);
+          }
+        }
+        that.setState({products: productSet});
+        let formattedProducts = productSet.map(product => {
           return <tr key={`product_${product.id}`}>
             <td>{product.id}</td>
             <td>{product.name}</td>
