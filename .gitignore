@@ -1,2 +1,4 @@
 node_modules
 invoices.sqlite
+/public/bundle.js
+DELIVERABLES.md

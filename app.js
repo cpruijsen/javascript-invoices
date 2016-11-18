@@ -132,6 +132,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
+// WEBPACK CONFIGURATION
+
+(function initWebpack() {
+  const webpack = require('webpack');
+  const webpackConfig = require('./webpack.config.js');
+  const compiler = webpack(webpackConfig);
+
+  // app.use(require('webpack-dev-middleware')(compiler, {
+  //   noInfo: true, publicPath: webpackConfig.output.publicPath,
+  // }));
+
+  app.use(require('webpack-hot-middleware')(compiler, {
+    log: console.log, path: '/__webpack_hmr', heartbeat: 10 * 1000,
+  }));
+
+})();
+
 // CUSTOMERS API
 
 app.route('/api/customers')
