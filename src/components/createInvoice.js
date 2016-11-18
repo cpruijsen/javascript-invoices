@@ -23,8 +23,9 @@ export default class CreateInvoice extends Component {
         <div>
           <p> select customer </p>
           <Select2
-            multiple
+            ref="customerSelector"
             data={this.formatCustomersForSelect()}
+            onSelect={() => this.onCustomerSelect()}
           />
         </div>
 
@@ -32,7 +33,9 @@ export default class CreateInvoice extends Component {
           <p> add products </p>
           <Select2
             multiple
-            data={this.formatCustomersForSelect()}
+            ref="productSelector"
+            data={this.formatProductsForSelect()
+            onSelect={() => this.onProductSelect()}
           />
         </div>
 
@@ -52,7 +55,7 @@ export default class CreateInvoice extends Component {
     );
   }
   formatCustomersForSelect() {
-    this.props.customers.map(customer => {
+    return this.props.customers.map(customer => {
       return {
         id: customer.id,
         text: customer.name
@@ -60,12 +63,20 @@ export default class CreateInvoice extends Component {
     });
   }
   formatProductsForSelect() {
-    this.props.products.map(product => {
+    return this.props.products.map(product => {
       return {
         id: product.id,
         text: `${product.name} + ${product.price}`
       };
     });
+  }
+  onProductSelect() {
+    let productId = parseInt(this.refs.productSelector.el.val());
+    console.log('product', productId);
+  }
+  onCustomerSelect() {
+    let customerId = parseInt(this.refs.customerSelector.el.val());
+    console.log('customer', customerId);
   }
   handleChange(e) {
     let that = this;
@@ -82,5 +93,8 @@ export default class CreateInvoice extends Component {
     });
     let total = productTotal * (1 - this.state.discount);
     this.setState({total: total});
+  }
+  saveInvoice() {
+    // save the invoice to the DB on every change.
   }
 }

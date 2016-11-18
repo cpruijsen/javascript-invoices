@@ -7,7 +7,9 @@ export default class Invoices extends Component {
     this.state = {
       invoices: null,
       formattedInvoices: null,
-      showCreateInvoice: false
+      showCreateInvoice: false,
+      products: null,
+      customers: null
     };
     this.showCreateInvoice = this.showCreateInvoice.bind(this);
     this.getCustomers = this.getCustomers.bind(this);
@@ -30,6 +32,8 @@ export default class Invoices extends Component {
           </tr>
         });
         that.setState({formattedInvoices: formattedInvoices});
+        that.getProducts();
+        that.getCustomers();
       }).catch(err => console.warn('err invoices fetch', err));
   }
   render() {
@@ -63,7 +67,7 @@ export default class Invoices extends Component {
       				</tbody>
       			</table>
           <button onClick={() => that.showCreateInvoice()}>create new invoice</button>
-        </div> : <CreateInvoice customers={this.getCustomers()} products={this.getProducts()} returnToInvoices={this.showCreateInvoice}/>}
+        </div> : <CreateInvoice customers={this.state.customers} products={this.state.products} returnToInvoices={this.showCreateInvoice}/>}
       </div>
     );
   }
@@ -73,6 +77,7 @@ export default class Invoices extends Component {
     });
   }
   getCustomers() {
+    let that = this;
     fetch('http://localhost:8000/api/customers')
       .then(res => res.json())
       .then(customers => {
@@ -95,10 +100,11 @@ export default class Invoices extends Component {
             <td>{customer.phone}</td>
           </tr>
         });
-        return formattedCustomers;
+        that.setState({customers: formattedCustomers});
       }).catch(err => console.warn('err fetching customers', err));
   }
   getProducts() {
+    let that = this;
     fetch('http://localhost:8000/api/products')
       .then(res => res.json())
       .then(products => {
@@ -120,7 +126,7 @@ export default class Invoices extends Component {
             <td>{product.price}</td>
           </tr>
         });
-        return formattedProducts;
+        that.setState({products: formattedProducts});
       }).catch(err => console.warn('err fetching products', err));
   }
 }
