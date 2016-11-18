@@ -11,13 +11,23 @@ export default class CreateInvoice extends Component {
       customer: null,
       discount: 0,
       total: 0,
-      invoiceId: null
+      invoiceId: null,
+      newProductPrice: null,
+      newProduct: null,
+      productError: false,
+      newCustomer: null,
+      newCustomerPhone: null,
+      newCustomerAddress: null,
+      customerError: false,
+      customerCreateMessage: null,
+      productCreateMessage: null
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleQuantitySet = this.handleQuantitySet.bind(this);
     this.calculateTotal = this.calculateTotal.bind(this);
     this.formatCustomersForSelect = this.formatCustomersForSelect.bind(this);
     this.formatProductsForSelect = this.formatProductsForSelect.bind(this);
+    this.submitProduct = this.submitProduct.bind(this);
   }
   render() {
     let that = this;
@@ -82,6 +92,29 @@ export default class CreateInvoice extends Component {
 
         <button onClick={() => that.props.returnToInvoices()}>return to invoices</button>
       </div>
+
+      <div>
+        <form>
+          <p> create new product </p>
+          <input type="text" name="newProduct" onChange={this.handleChange}/>
+          { this.state.productError ? <p>product already exists</p> : null }
+          <p> new product price </p>
+          <input type="number" onChange={this.handleChange} name="newProductPrice" min={0} max={100}/>
+          {this.state.newProduct && this.state.newProductPrice ? <button onClick={() => that.submitProduct()}> submit new product </button> : null}
+        </form>
+
+        <form>
+          <p> create new customer </p>
+          <input type="text" name="newCustomer" onChange={this.handleChange}/>
+          { this.state.customerError ? <p>customer already exists</p> : null }
+          <p> new customer address </p>
+          <input type="text" onChange={this.handleChange} name="newCustomerAddress" />
+          <p> new customer phone </p>
+          <input type="text" onChange={this.handleChange} name="newCustomerPhone" />
+          {this.state.newCustomer ? <button onClick={() => that.submitCustomer()}> submit new customer </button> : null}
+        </form>
+
+      </div>
     );
   }
   formatCustomersForSelect() {
@@ -136,11 +169,75 @@ export default class CreateInvoice extends Component {
   }
   handleChange(e) {
     let that = this;
+    let persistedEvent = e.target;
     this.setState({
-      [e.target.name]: e.target.value
+      [persistedEvent.name]: persistedEvent.value
     }, () => {
-      that.calculateTotal();
+      if (persistedEvent.name === 'discount') {
+        that.calculateTotal();
+      }
     });
+  }
+  submitProduct() {
+    let that = this;
+    let productError;
+    let body = {
+      price: this.state.newProductPrice,
+      name: this.state.newProduct
+    };
+    // check if product exists
+    this.props.products.forEach(product => {
+      if (product.name === that.state.newProduct) {
+        productError = true;
+      }
+    });
+    // if exists, show error message, if not, create
+    if (productError) {
+      this.setState({productError: true});
+    } else {
+      fetch('http://localhost:8000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }).then(res => res.json())
+        .then(product => {
+          console.log('success create product', product);
+          that.setState({productCreateMessage: `success create product: ${body.name}, price: ${body.price}`})
+        }).catch(err => console.warn('error creating product', err));
+    }
+  }
+  submitCustomer() {
+    let that = this;
+    let customerError;
+    let body = {
+      name: this.state.newCustomer,
+      address: this.state.newCustomerAddress || 'n/a',
+      phone: this.state.newCustomerPhone || 'n/a'
+    };
+    // check if product exists
+    this.props.customer.forEach(customer => {
+      if (customer.name === that.state.newCustomer) {
+        customerError = true;
+      }
+    });
+    // if exists, show error message, if not, create
+    if (customerError) {
+      this.setState({customerError: true});
+    } else {
+      fetch('http://localhost:8000/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }).then(res => res.json())
+        .then(customer => {
+          console.log('success create customer', customer);
+          that.setState({customerCreateMessage: `success create customer: ${body.name}`})
+        }).catch(err => console.warn('error creating customer', err));
+    }
   }
   handleQuantitySet(e) {
     let that = this;
