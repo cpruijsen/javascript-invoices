@@ -90,20 +90,17 @@ export default class CreateInvoice extends Component {
           <p>total: {this.state.total}</p>
         </div>
 
-        <button onClick={() => that.props.returnToInvoices()}>return to invoices</button>
-      </div>
-
       <div>
-        <form>
+        <div>
           <p> create new product </p>
           <input type="text" name="newProduct" onChange={this.handleChange}/>
           { this.state.productError ? <p>product already exists</p> : null }
           <p> new product price </p>
           <input type="number" onChange={this.handleChange} name="newProductPrice" min={0} max={100}/>
           {this.state.newProduct && this.state.newProductPrice ? <button onClick={() => that.submitProduct()}> submit new product </button> : null}
-        </form>
+        </div>
 
-        <form>
+        <div>
           <p> create new customer </p>
           <input type="text" name="newCustomer" onChange={this.handleChange}/>
           { this.state.customerError ? <p>customer already exists</p> : null }
@@ -112,7 +109,10 @@ export default class CreateInvoice extends Component {
           <p> new customer phone </p>
           <input type="text" onChange={this.handleChange} name="newCustomerPhone" />
           {this.state.newCustomer ? <button onClick={() => that.submitCustomer()}> submit new customer </button> : null}
-        </form>
+        </div>
+      </div>
+
+      <button onClick={() => that.props.returnToInvoices()}>return to invoices</button>
 
       </div>
     );
