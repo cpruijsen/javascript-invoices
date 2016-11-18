@@ -14,6 +14,7 @@ export default class CreateInvoice extends Component {
       invoiceId: null
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleQuantitySet = this.handleQuantitySet.bind(this);
     this.calculateTotal = this.calculateTotal.bind(this);
     this.formatCustomersForSelect = this.formatCustomersForSelect.bind(this);
     this.formatProductsForSelect = this.formatProductsForSelect.bind(this);
@@ -62,7 +63,7 @@ export default class CreateInvoice extends Component {
           product = product[0];
           return <form key={uuid()}>
             <p>set quantity for {product.name}</p>
-            <input name={`${product.id}, ${product.price}`} type="number" onChange={this.handleQuantitySet}/>
+            <input name={`${product.id},${product.price}`} type="number" onChange={this.handleQuantitySet}/>
           </form>
         })}
 
@@ -143,54 +144,72 @@ export default class CreateInvoice extends Component {
   }
   handleQuantitySet(e) {
     let that = this;
-    console.log('name', e.target.name, 'val', e.target.value);
-    // e.target.name is 'productId, productPrice'
-    // split on ',' then handle
-    // e.target.value is the quantity
+    let persistedEvent = e.target;
+    let product = persistedEvent.name.split(',');
 
+    let addedQuantity = {
+      id: product[0],
+      price: product[1],
+      quantity: persistedEvent.value
+    };
+    console.log('new product quantity', addedQuantity);
 
-    // flow into calculateTotal, then saveInvoice
+    let addedProductQuantities = this.state.addedProductQuantities.slice();
+    for (let i = 0, len = addedProductQuantities.length; i < len; i++) {
+      if (addedProductQuantities[i]) {
+        if (addedProductQuantities[i]['id'] === addedQuantity.id) {
+            addedProductQuantities[i] = addedQuantity;
+            break;
+        } else if (i === len-1) {
+          addedProductQuantities.push(addedQuantity);
+        }
+      } else {
+        addedProductQuantities.push(addedQuantity);
+      }
+    }
+    this.setState({addedProductQuantities: addedProductQuantities}, () => {
+      // calculate the total, then update the invoice etc.
+      that.calculateTotal();
+    });
 
-    /*
-    ## InvoiceItems
-    - id (integer)
-    - invoice_id (integer)
-    - product_id (integer)
-    - quantity (decimal)
-    */
-    /*
-    ## Invoices
-    ```
-    GET|POST          /api/invoices
-    GET|PUT|DELETE    /api/invoices/{id}
-    ```
-
-    ## InvoiceItems
-    ```
-    GET|POST          /api/invoices/{id}/items
-    GET|PUT|DELETE    /api/invoices/{invoice_id}/items/{id}
-    ```
-    */
-
+    // post the invoice_item to the DB.
+    let body = {
+      product_id: product[0],
+      quantity: persistedEvent.value
+    };
+    let url = `http://localhost:8000/api/invoices/${this.state.invoiceId}/items`;
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }).then(res => res.json())
+      .then(invoice_item => console.log('item created', invoice_item))
+      .catch(err => console.warn('error creating invoice_item', err));
   }
   calculateTotal() {
+    let that = this;
     let productTotal = 0;
-    // this.state.products.forEach(product => {
-    //   productTotal += product.price;
-    // });
-    // let total = productTotal * (1 - this.state.discount);
-    // this.setState({total: total});
-  }
-  saveInvoice() {
-    // save the invoice to the DB on every change.
-
-    /*
-    ## Invoices
-    - id (integer)
-    - customer_id (integer)
-    - discount (decimal)
-    - total (decimal)
-    */
-
+    this.state.addedProductQuantities.forEach(product => {
+      productTotal += (product.price * product.quantity);
+    });
+    let total = productTotal * (1 - this.state.discount);
+    this.setState({total: total}, () => {
+      let body = {
+        customer_id: that.state.customer,
+        discount: that.state.discount,
+        total: total
+      };
+      fetch(`/api/invoices/${that.state.invoiceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }).then(res => res.json())
+        .then(invoice => console.log('success update invoice', invoice))
+        .catch(err => console.warn('error updating invoice', err));
+    });
   }
 }
