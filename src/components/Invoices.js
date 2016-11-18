@@ -29,7 +29,7 @@ export default class Invoices extends Component {
             <td>{invoice.total}</td>
             <td>{invoice.discount}</td>
             <td>{invoice.createdAt}</td>
-          </tr>
+          </tr> // add moment.js for parsing the date.
         });
         that.setState({formattedInvoices: formattedInvoices});
         that.getProducts();
@@ -92,15 +92,7 @@ export default class Invoices extends Component {
             customerSet.push(customerObj[key]);
           }
         }
-        let formattedCustomers = customerSet.map(customer => {
-          return <tr key={`customer_${customer.id}`}>
-            <td>{customer.id}</td>
-            <td>{customer.name}</td>
-            <td>{customer.address}</td>
-            <td>{customer.phone}</td>
-          </tr>
-        });
-        that.setState({customers: formattedCustomers});
+        that.setState({customers: customerSet});
       }).catch(err => console.warn('err fetching customers', err));
   }
   getProducts() {
@@ -119,14 +111,7 @@ export default class Invoices extends Component {
             productSet.push(productObj[key]);
           }
         }
-        let formattedProducts = productSet.map(product => {
-          return <tr key={`product_${product.id}`}>
-            <td>{product.id}</td>
-            <td>{product.name}</td>
-            <td>{product.price}</td>
-          </tr>
-        });
-        that.setState({products: formattedProducts});
+        that.setState({products: productSet});
       }).catch(err => console.warn('err fetching products', err));
   }
 }
