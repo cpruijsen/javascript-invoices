@@ -43,12 +43,6 @@ export default class Customers extends Component {
   }
   render() {
     let that = this;
-    /* customers:
-    - id (integer)
-    - name (string)
-    - address (string)
-    - phone (string)
-    */
     return (
       <div>
         {!this.state.showCreateCustomer ? <div>

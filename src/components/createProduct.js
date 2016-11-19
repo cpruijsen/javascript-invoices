@@ -10,7 +10,7 @@ export default class CreateProduct extends Component {
     let that = this;
     return (
       <div>
-        <p>createproduct</p>
+        <p>createproduct placeholder</p>
         <button onClick={() => that.props.returnToProducts()}>return to products</button>
       </div>
     );

@@ -93,6 +93,7 @@ export default class CreateInvoice extends Component {
       <div>
         <div>
           <p> create new product </p>
+          <p> new product name </p>
           <input type="text" name="newProduct" onChange={this.handleChange}/>
           { this.state.productError ? <p>product already exists</p> : null }
           <p> new product price </p>
@@ -102,6 +103,7 @@ export default class CreateInvoice extends Component {
 
         <div>
           <p> create new customer </p>
+          <p> new customer name </p>
           <input type="text" name="newCustomer" onChange={this.handleChange}/>
           { this.state.customerError ? <p>customer already exists</p> : null }
           <p> new customer address </p>

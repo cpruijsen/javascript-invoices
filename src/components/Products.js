@@ -42,11 +42,6 @@ export default class Products extends Component {
   }
   render() {
     let that = this;
-    /* products:
-    - id (integer)
-    - name (string)
-    - price (decimal)
-    */
     return (
       <div>
         {!this.state.showCreateProduct ? <div>

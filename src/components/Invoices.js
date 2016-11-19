@@ -38,17 +38,6 @@ export default class Invoices extends Component {
   }
   render() {
     let that = this;
-    /* invoices:
-    - id (integer)
-    - customer_id (integer)
-    - discount (decimal)
-    - total (decimal)
-
-    -- can add items <th>Invoice items</th>
-    -- will have to do an additional fetch.
-    -- can also fetch client info etc. maybe render past invoices?
-    */
-
     return (
       <div>
         {!this.state.showCreateInvoice ? <div>

@@ -10,7 +10,7 @@ export default class CreateCustomer extends Component {
     let that = this;
     return (
       <div>
-        <p>createCustomer</p>
+        <p>createCustomer placeholder</p>
         <button onClick={() => that.props.returnToCustomers()}>return to customers</button>
       </div>
     );
